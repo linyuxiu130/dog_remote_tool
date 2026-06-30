@@ -1215,7 +1215,25 @@ def test_zg_navigation_start_always_prepares_body_bridge_before_goal_command():
     assert "复用已预热控制权" in command
     assert "导航服务已就绪，直接下发目标" not in command
     assert command.rindex("robot-launch start robot_roamerx") < command.rindex("echo run_goal")
-    assert command.index("enable_forward_cmd_vel") < command.index("dog_remote_robot_roamerx_control")
+    assert command.index("enable_forward_cmd_vel") < command.rindex("BODY_NAV_BRIDGE_REQ=")
+    assert subprocess.run(["bash", "-n", "-c", command]).returncode == 0
+
+
+def test_zg_body_bridge_uses_warm_fifo_helper_before_slow_ros_checks():
+    command = navigation_helper_control._ensure_body_navigation_bridge_command(
+        get_product("zg_lidar_nx"),
+        require_control_switch=True,
+    )
+
+    assert "/tmp/dog_remote_body_navigation_bridge.fifo" in command
+    assert "dog_remote_body_navigation_bridge_helper" in command
+    assert "BODY_NAV_BRIDGE_REQ=" in command
+    assert "prepare %s\\n" in command
+    assert command.index("BODY_NAV_BRIDGE_PID=$(cat") < command.index("source /opt/robot/install/setup.bash")
+    assert command.index("BODY_NAV_BRIDGE_REQ=") < command.index("robot-launch list")
+    assert "robot-launch start robot_roamerx" in command
+    assert "enable_forward_cmd_vel" in command
+    assert "ControlServerSwitchControl" in command
     assert subprocess.run(["bash", "-n", "-c", command]).returncode == 0
 
 
@@ -1744,11 +1762,11 @@ def test_zg_ensure_navigation_helpers_does_not_claim_body_control_before_click()
     spec = navigation.ensure_navigation_helpers_command(get_product("zg_lidar_nx"))
 
     assert "dog_remote_start_navigation_helper.py" in spec.command
+    assert "dog_remote_body_navigation_bridge_helper.py" in spec.command
     assert "robot-launch start robot_roamerx" not in spec.command
     assert "enable_forward_cmd_vel" not in spec.command
     assert "[d]og_remote_app_ws_broker" not in spec.command
-    assert "/robot_control_server/current_requester_info" not in spec.command
-    assert "ControlServerSwitchControl" not in spec.command
+    assert "BODY_NAV_BRIDGE_REQ=" not in spec.command
     assert "/robot_roamerx/is_in_nav_control" not in spec.command
 
 
@@ -1765,6 +1783,7 @@ def test_zg_start_goal_claims_body_control_on_click():
 
     assert "robot@192.168.234.1" in spec.command
     assert "robot-launch start robot_roamerx" in spec.command
+    assert "BODY_NAV_BRIDGE_REQ=" in spec.command
     assert "enable_forward_cmd_vel" in spec.command
     assert "ControlServerSwitchControl" in spec.command
     assert 'request(1, "change_control_right_to", {"owner": "alg"}, wait=3)' in spec.command

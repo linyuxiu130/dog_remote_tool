@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from dog_remote_tool.core.profiles import ProductProfile
+from dog_remote_tool.core.fifo_helper import ensure_fifo_helper_inner
 from dog_remote_tool.core.shell import CommandSpec, echo_message, quote, remote_env, ssh_command
 from dog_remote_tool.modules.arc_app_ws import common_arc_app_ws_python
+from dog_remote_tool.modules.body_navigation_bridge import ensure_body_navigation_bridge_helper_command
 from dog_remote_tool.modules.navigation.helper_scripts import (
     MODE_SWITCH_STATE_PID,
     START_NAV_HELPER_FIFO,
@@ -15,34 +17,14 @@ from dog_remote_tool.modules.navigation.payloads import _payload_b64
 
 
 def _ensure_start_navigation_helper_inner() -> str:
-    helper = quote(_start_navigation_helper_python())
-    return (
-        f"START_NAV_HELPER_PID_FILE={quote(START_NAV_HELPER_PID)}; "
-        f"START_NAV_HELPER_SCRIPT={quote(START_NAV_HELPER_SCRIPT)}; "
-        f"START_NAV_HELPER_FIFO={quote(START_NAV_HELPER_FIFO)}; "
-        f"START_NAV_HELPER_LOG={quote(START_NAV_HELPER_LOG)}; "
-        "START_NAV_HELPER_PID=$(cat \"$START_NAV_HELPER_PID_FILE\" 2>/dev/null || true); "
-        "if [ -n \"$START_NAV_HELPER_PID\" ] && kill -0 \"$START_NAV_HELPER_PID\" 2>/dev/null && [ -p \"$START_NAV_HELPER_FIFO\" ]; then "
-        "true; "
-        "else "
-        "if [ -n \"$START_NAV_HELPER_PID\" ]; then kill \"$START_NAV_HELPER_PID\" 2>/dev/null || true; fi; "
-        f"printf '%s' {helper} > \"$START_NAV_HELPER_SCRIPT\"; "
-        "chmod +x \"$START_NAV_HELPER_SCRIPT\"; "
-        "rm -f \"$START_NAV_HELPER_FIFO\"; "
-        "nohup python3 \"$START_NAV_HELPER_SCRIPT\" >> \"$START_NAV_HELPER_LOG\" 2>&1 & "
-        "START_NAV_HELPER_PID=$!; echo \"$START_NAV_HELPER_PID\" > \"$START_NAV_HELPER_PID_FILE\"; "
-        "for _ in 1 2 3 4 5 6 7 8 9 10; do "
-        "if kill -0 \"$START_NAV_HELPER_PID\" 2>/dev/null && [ -p \"$START_NAV_HELPER_FIFO\" ]; then break; fi; "
-        "sleep 0.2; "
-        "done; "
-        "if kill -0 \"$START_NAV_HELPER_PID\" 2>/dev/null && [ -p \"$START_NAV_HELPER_FIFO\" ]; then "
-        "true; "
-        "else "
-        "echo '[ERROR] 导航下发通道启动失败'; "
-        "tail -20 \"$START_NAV_HELPER_LOG\" 2>/dev/null || true; "
-        "exit 7; "
-        "fi; "
-        "fi; "
+    return ensure_fifo_helper_inner(
+        prefix="START_NAV_HELPER",
+        script_path=START_NAV_HELPER_SCRIPT,
+        pid_file=START_NAV_HELPER_PID,
+        fifo_path=START_NAV_HELPER_FIFO,
+        log_path=START_NAV_HELPER_LOG,
+        script=_start_navigation_helper_python(),
+        failure_message="[ERROR] 导航下发通道启动失败",
     )
 
 
@@ -120,6 +102,12 @@ def ensure_navigation_helpers_command(profile: ProductProfile) -> CommandSpec:
         f"{_ensure_start_navigation_helper_inner()}"
     )
     command = ssh_command(profile, inner)
+    body_helper = ensure_body_navigation_bridge_helper_command(profile)
+    if body_helper:
+        command = (
+            f"{command}; "
+            f"( {body_helper} ) || echo '[WARN] 中狗本体导航 helper 预热失败，点击导航时会自动重试'"
+        )
     return CommandSpec(
         "准备导航通道",
         command,
