@@ -38,11 +38,11 @@ obj = {
     "data": {"req_func": "get_nav_status"},
 }
 client.request(obj, "get_nav_status", 2)
-print("[INFO] app websocket/broker 已就绪", flush=True)
+print("[INFO] 导航通道已就绪", flush=True)
 '''.strip()
     return (
         f"python3 -c {quote(python)} || "
-        "echo '[WARN] app websocket/broker 预热失败，首次导航会自动重试'; "
+        "echo '[WARN] 导航通道准备未完成，首次导航会自动重试'; "
     )
 
 
@@ -106,7 +106,7 @@ def ensure_navigation_helpers_command(profile: ProductProfile) -> CommandSpec:
     if body_helper:
         command = (
             f"{command}; "
-            f"( {body_helper} ) || echo '[WARN] 中狗本体导航 helper 预热失败，点击导航时会自动重试'"
+            f"( {body_helper} ) || echo '[WARN] 中狗导航控制准备未完成，点击导航时会自动重试'"
         )
     return CommandSpec(
         "准备导航通道",

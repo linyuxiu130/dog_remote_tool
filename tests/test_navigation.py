@@ -1212,7 +1212,8 @@ def test_zg_navigation_start_always_prepares_body_bridge_before_goal_command():
     assert "timeout 3s ros2 param get /robot_roamerx enable_forward_cmd_vel" in command
     assert "/opt/robot/install/robot_roamerx/share/robot_roamerx/config/zsm/robot_roamerx.yaml" in command
     assert "robot-launch restart robot_roamerx" in command
-    assert "复用已预热控制权" in command
+    assert "导航控制权已就绪" in command
+    assert "复用已预热控制权" not in command
     assert "导航服务已就绪，直接下发目标" not in command
     assert command.rindex("robot-launch start robot_roamerx") < command.rindex("echo run_goal")
     assert command.index("enable_forward_cmd_vel") < command.rindex("BODY_NAV_BRIDGE_REQ=")
@@ -1752,7 +1753,7 @@ def test_ensure_navigation_helpers_command_starts_persistent_publishers():
     assert "rclpy.create_node" in spec.command
     assert "AppWsBrokerClient()" in spec.command
     assert '"get_nav_status"' in spec.command
-    assert "app websocket/broker 已就绪" in spec.command
+    assert "导航通道已就绪" in spec.command
     assert "std_msgs.msg import Bool" not in spec.command
     assert "keep_enabled" not in spec.command
     assert navigation.ensure_mode_switch_helper_command is navigation.ensure_navigation_helpers_command

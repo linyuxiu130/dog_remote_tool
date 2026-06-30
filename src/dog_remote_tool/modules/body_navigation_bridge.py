@@ -167,7 +167,7 @@ def _body_navigation_bridge_helper_prepare_inner(ready_marker: str, *, fail_hard
         "done; "
         "if printf '%s\\n' \"$BODY_NAV_BRIDGE_REPLY\" | grep -q '^OK'; then "
         "if printf '%s\\n' \"$BODY_NAV_BRIDGE_REPLY\" | grep -q 'already'; then "
-        "echo '[INFO] 导航控制权已就绪，复用已预热控制权'; "
+        "echo '[INFO] 导航控制权已就绪'; "
         "else "
         "echo '[INFO] 导航控制权已就绪'; "
         "fi; "
