@@ -88,6 +88,11 @@ def robot_sdk_stream_command(profile: ProductProfile, axis_limit: int = 100, int
     restore_roamerx = _control_shared.robot_remote_restore_occupancy_command(profile)
     restart_robot_remote = _control_shared.robot_remote_restart_command(profile)
     recover_control = _control_shared.robot_remote_realtime_prepare_command(profile)
+    preflight_control = (
+        f"{recover_control}\n_dog_remote_needs_restore_roamerx=1\n"
+        if getattr(profile, "key", "").startswith("zg")
+        else ""
+    )
     stream_command = (
         f"{_control_shared.tool_cli()} --robot-remote stream "
         f"--host {quote(target.host)} --port 8081 --timeout 2 "
@@ -101,6 +106,7 @@ def robot_sdk_stream_command(profile: ProductProfile, axis_limit: int = 100, int
         "fi\n"
         "}\n"
         "trap _dog_remote_restore_roamerx EXIT INT TERM\n"
+        f"{preflight_control}"
         "_dog_remote_stream_log=$(mktemp /tmp/dog_remote_robot_remote_stream.XXXXXX)\n"
         "_dog_remote_run_stream() {\n"
         f"  {stream_command}\n"
