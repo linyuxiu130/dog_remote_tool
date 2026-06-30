@@ -47,9 +47,6 @@ class BagBackend(BagBackendTransferMixin):
         ]
         return subprocess.run(cmd, input=self.profile.password + "\n", capture_output=True, text=True, timeout=timeout)
 
-    def record_process_command(self, script: str) -> list[str]:
-        return _bag_recording_control.record_process_command(self.profile, self.ssh_options(), script)
-
     def start_remote_recording(self, script: str, remote_bag_paths: list[str]) -> tuple[bool, str]:
         return _bag_recording_control.start_remote_recording(remote_bag_paths, script, self.ssh_bash_command, self.log)
 

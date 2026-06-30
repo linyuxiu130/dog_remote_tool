@@ -7,18 +7,19 @@
 | 项目 | 内容 |
 | --- | --- |
 | 产品名称 | 远程调试平台 DogRemoteTool |
-| 当前版本 | 0.1.8 |
-| 发布日期 | 2026-06-24 |
-| 发行包 | `release/DogRemoteTool-v0.1.8-x86_64.run` |
+| 当前版本 | 0.1.10 |
+| 发布日期 | 2026-06-30 |
+| 发行包 | `release/DogRemoteTool-v0.1.10-x86_64.run` |
 | 目标平台 | Ubuntu 22.04 x86_64 |
 | Python 运行时 | Python 3.10 |
 | 打包方式 | 自解压 `.run`，内置 Python/PyQt5 运行时、资源文件和常用 SSH 工具 |
-| 校验 SHA256 | `f26a585717c841b6acc9924c3192e40b78d8518b423e9e0431299e8174dd5ee0` |
+| 校验 SHA256 | `d52da809ec6d5bc99dada5a3e1ba65434a9c1547b39db3dabd5a3fa115511959` |
 
 ## 版本更新记录
 
 | 版本号 | 日期 | 更新类型 | 更新内容 | 验证记录 | 备注 |
 | --- | --- | --- | --- | --- | --- |
+| 0.1.10 | 2026-06-30 | 问题修复 / 录包加速 / 发行打包 | 统一远端录包启动、停止、状态、扫描和体积刷新到单一 helper；停止录包改为快速发送停止信号，前台不再等待远端长时间收尾；停止按钮支持取消本地等待；清理旧录包进程检测分支。 | `PYTHONPATH=src pytest -q tests/test_bag.py tests/test_bag_remote_files.py tests/test_bag_transfer.py tests/test_bag_helpers.py tests/smoke_main_window.py`：94 passed；`py_compile` 通过；`QT_QPA_PLATFORM=offscreen release/DogRemoteTool-v0.1.10-x86_64.run --smoke-test` 通过；`xg2_s100` 实机短包验证启动约 1.15s、停止约 1.18s，状态/扫描/体积正常。 | 当前发行包已生成，`release/BUILD_MANIFEST.txt` 已记录构建信息。 |
 | 0.1.8 | 2026-06-24 | 问题修复 / 导航加速 / 发行打包 | 修复路网多目标下发结构；修正远端导航终态误判导致工具提前释放控制权的问题；统一 L2 导航启动入口，多点、巡航、建图轨迹和循环任务不再误走 3588 `robot_roamerx` 桥接；中狗导航继续保留 `robot_roamerx` 控制权申请；修复发布包内“重启工具”找不到源码 `启动.sh` 的问题。 | `PYTHONPATH=src pytest -q tests`：1312 passed；`build/build_release.sh` 成功生成 v0.1.8；`QT_QPA_PLATFORM=offscreen release/DogRemoteTool-v0.1.8-x86_64.run --smoke-test` 通过。 | 当前发行包已生成，`release/BUILD_MANIFEST.txt` 已记录构建信息。 |
 | 0.1.7 | 2026-06-10 | 功能增强 / 导航兼容 / 发行打包 | 导航流程支持小狗 0.7.0 导航栈触发兜底；修复多点导航只到最后一个点的问题；新增循环模式开关，支持多点、路网和建图路线循环；导航全屏退出后保留远端导航状态，同地图再次进入可接续 UI 状态；切换地图前自动停止当前导航并重新初始化；路网模式会清空普通点位，避免点位混用；选中路网目标后增强路线显示；同步版本号并生成完整发行包。 | `PYTHONPATH=src pytest -q`：1099 passed；`build/build_release.sh` 成功生成 v0.1.7 发行包。 | 当前发行包已生成，`release/BUILD_MANIFEST.txt` 已记录构建信息。 |
 | 0.1.6 | 2026-06-08 | 历史版本 | 已存在历史发行包。 | 待补充 | 可按旧发布记录补齐。 |

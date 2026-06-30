@@ -49,6 +49,7 @@ class BagRecordingSessionMixin:
         self.start_btn.setEnabled(False)
         self.resume_btn.setEnabled(False)
         self.stop_btn.setEnabled(False)
+        self.stop_btn.setText("停止录制")
         self.record_status_label.setText("启动录制...")
         self._set_pull_progress_visible(False)
         self._set_record_detail_visible(True)
@@ -83,6 +84,7 @@ class BagRecordingSessionMixin:
             self._apply_record_context(empty_record_context())
             self.start_btn.setEnabled(True)
             self.stop_btn.setEnabled(False)
+            self.stop_btn.setText("停止录制")
             self._update_resume_button()
             self.duration_label.setText("00:00:00")
             self.record_status_label.setText("启动失败")
@@ -96,6 +98,7 @@ class BagRecordingSessionMixin:
         self.start_btn.setEnabled(False)
         self.resume_btn.setEnabled(False)
         self.stop_btn.setEnabled(True)
+        self.stop_btn.setText("停止录制")
         self.record_status_label.setText("正在录制...")
         self.duration_timer.start()
         self.bag_size_timer.start()
@@ -105,11 +108,14 @@ class BagRecordingSessionMixin:
         return True
 
     def stop_recording(self) -> bool:
+        if self.stop_requested:
+            return self.cancel_recording_wait()
         if not self.is_recording:
             return False
         self._log("正在停止录制...")
         self.record_status_label.setText("正在停止...")
-        self.stop_btn.setEnabled(False)
+        self.stop_btn.setEnabled(True)
+        self.stop_btn.setText("取消等待")
         self.stop_requested = True
         self.record_stop_request_id += 1
         request_id = self.record_stop_request_id
@@ -130,13 +136,25 @@ class BagRecordingSessionMixin:
                 self.record_done.emit(False, "远端停止录制失败", request_id)
                 return
             self._cleanup_local_recording_process()
-            if not backend.wait_remote_bags_finalized(paths, timeout=180):
-                self.record_done.emit(False, "远端Bag未完成收尾", request_id)
-                return
-            quick_check_summary = self._quick_check_remote_recording(backend, paths, topics)
-            self.record_done.emit(True, quick_check_summary, request_id)
+            self.record_done.emit(True, "停止信号已发送", request_id)
         except Exception as exc:
             self.record_done.emit(False, f"停止录制异常: {exc}", request_id)
+
+    def cancel_recording_wait(self) -> bool:
+        self.record_stop_request_id += 1
+        self.stop_requested = False
+        self.is_starting_recording = False
+        self.is_recording = False
+        self.duration_timer.stop()
+        self.bag_size_timer.stop()
+        self.start_btn.setEnabled(True)
+        self.stop_btn.setEnabled(False)
+        self.stop_btn.setText("停止录制")
+        self._update_resume_button()
+        self.duration_label.setText("00:00:00")
+        self.record_status_label.setText("已取消等待")
+        self._log("[录制] 已取消本地等待；远端若仍在收尾，可刷新远端 Bag 后接管或回传。")
+        return True
 
     def _quick_check_remote_recording(self, backend: bag.BagBackend, paths: list[str], topics: list[str]) -> str:
         try:
@@ -193,6 +211,7 @@ class BagRecordingSessionMixin:
         self.bag_size_timer.stop()
         self.start_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
+        self.stop_btn.setText("停止录制")
         self._update_resume_button()
         self.duration_label.setText("00:00:00")
         if success:

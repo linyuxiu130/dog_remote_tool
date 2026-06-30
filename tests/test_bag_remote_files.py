@@ -4,6 +4,7 @@ from dog_remote_tool.core.profiles import get_product
 from dog_remote_tool.modules import bag
 from dog_remote_tool.modules.bag import remote_delete as bag_remote_delete
 from dog_remote_tool.modules.bag import remote_files as bag_remote_files
+from dog_remote_tool.modules.bag import remote_helper as bag_remote_helper
 
 
 def test_parse_remote_bag_status_defaults_bad_values_to_zero():
@@ -15,40 +16,33 @@ def test_parse_remote_bag_status_defaults_bad_values_to_zero():
 def test_remote_bag_status_command_quotes_path():
     command = bag_remote_files.remote_bag_status_command("/tmp/zsibot/bag/rosbag2_l2_20260525_093001")
 
-    assert "metadata.yaml" in command
-    assert "ros2 bag record" in command
-    assert "ps -eww -o pid=,cmd=" in command
-    assert "--output=" in command
-    assert "path=/tmp/zsibot/bag/rosbag2_l2_20260525_093001" in command
+    assert "/tmp/dog_remote_bag_helper.py status-paths" in command
+    assert "/tmp/zsibot/bag/rosbag2_l2_20260525_093001" in command
+    assert "ps -eww -o pid=,cmd=" not in command
+    assert "awk" not in command
 
 
-def test_record_process_match_awk_accepts_ros2_output_option_variants():
+def test_helper_output_arg_match_accepts_ros2_output_option_variants():
+    namespace = {"__name__": "dog_remote_bag_helper_test"}
+    exec(bag_remote_helper.helper_script(), namespace)
+    matches = namespace["output_arg_matches"]
     path = "/tmp/zsibot/bag/rosbag2_l2_20260525_093001"
-    script = """
-path=%s
-printf '%%s\\n' \
-  ' 101 /opt/ros/humble/bin/ros2 bag record -o /tmp/zsibot/bag/rosbag2_l2_20260525_093001 /foo' \
-  ' 102 /opt/ros/humble/bin/ros2 bag record -o=/tmp/zsibot/bag/rosbag2_l2_20260525_093001 /foo' \
-  ' 103 /opt/ros/humble/bin/ros2 bag record --output /tmp/zsibot/bag/rosbag2_l2_20260525_093001 /foo' \
-  ' 104 /opt/ros/humble/bin/ros2 bag record --output=/tmp/zsibot/bag/rosbag2_l2_20260525_093001 /foo' \
-  ' 105 /opt/ros/humble/bin/ros2 bag record -o /tmp/zsibot/bag/rosbag2_l2_20260525_093001_extra /foo' \
-  ' 106 /opt/ros/humble/bin/ros2 topic echo /tmp/zsibot/bag/rosbag2_l2_20260525_093001' |
-awk -v path="$path" '%s
-index($0, "ros2 bag record") > 0 && has_output_path($0, path) {count++}
-END {print count+0}'
-""" % (subprocess.list2cmdline([path]), bag_remote_files.record_process_match_awk_functions())
 
-    result = subprocess.run(["bash", "-lc", script], capture_output=True, text=True, timeout=5)
-
-    assert result.returncode == 0, result.stderr
-    assert result.stdout.strip() == "4"
+    assert matches(f" 101 /opt/ros/humble/bin/ros2 bag record -o {path} /foo", path)
+    assert matches(f" 102 /opt/ros/humble/bin/ros2 bag record -o={path} /foo", path)
+    assert matches(f" 103 /opt/ros/humble/bin/ros2 bag record --output {path} /foo", path)
+    assert matches(f" 104 /opt/ros/humble/bin/ros2 bag record --output={path} /foo", path)
+    assert not matches(f" 105 /opt/ros/humble/bin/ros2 bag record -o {path}_extra /foo", path)
+    assert not matches(f" 106 /opt/ros/humble/bin/ros2 topic echo {path}", path)
 
 
 def test_remote_bag_statuses_batch_paths_and_parse_output():
     command = bag_remote_files.remote_bag_statuses_command(["/tmp/a", "/tmp/b space"])
 
-    assert "for path in /tmp/a '/tmp/b space'" in command
-    assert "metadata.yaml" in command
+    assert "/tmp/dog_remote_bag_helper.py status-paths" in command
+    assert "/tmp/a" in command
+    assert "/tmp/b space" in command
+    assert "ps -eww -o pid=,cmd=" not in command
 
     statuses = bag_remote_files.parse_remote_bag_statuses(
         "/tmp/a\texists=1 active=0 meta=1 size=12\n"
@@ -107,9 +101,10 @@ def test_parse_remote_bag_scan_output_reads_disk_and_items():
 def test_remote_bag_scan_command_uses_all_dirs():
     command = bag_remote_files.remote_bag_scan_command(["/tmp/zsibot/bag", "/home/robot/bags"])
 
-    assert "base_dir=/tmp/zsibot/bag" in command
-    assert "for dir in /tmp/zsibot/bag /home/robot/bags" in command
-    assert "head -100" in command
+    assert "/tmp/dog_remote_bag_helper.py scan" in command
+    assert "/tmp/zsibot/bag" in command
+    assert "/home/robot/bags" in command
+    assert "ps -eww -o pid=,cmd=" not in command
 
 
 def test_remote_bag_reindex_command_selects_storage_and_quotes_path():

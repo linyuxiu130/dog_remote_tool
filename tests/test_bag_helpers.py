@@ -119,12 +119,19 @@ def test_delete_message_helpers_cover_safe_and_failed_paths():
 class _FakeButton:
     def __init__(self):
         self.enabled = False
+        self.text_value = ""
 
     def setEnabled(self, enabled):
         self.enabled = enabled
 
     def isEnabled(self):
         return self.enabled
+
+    def setText(self, text):
+        self.text_value = text
+
+    def text(self):
+        return self.text_value
 
 
 class _FakeCheckBox:
@@ -1895,6 +1902,9 @@ class _FakeRecordStartStopPage:
     def _stop_recording_worker(self, *args):
         pass
 
+    def cancel_recording_wait(self):
+        return BagPage.cancel_recording_wait(self)
+
     def current_record_backend(self):
         return self.backend_instance
 
@@ -2336,12 +2346,31 @@ def test_bag_stop_recording_returns_thread_start_result(monkeypatch):
 
     assert BagPage.stop_recording(page) is True
     assert page.record_status_label.text() == "正在停止..."
-    assert page.stop_btn.enabled is False
+    assert page.stop_btn.enabled is True
+    assert page.stop_btn.text() == "取消等待"
     assert page.stop_requested is True
     assert page.record_stop_request_id == 5
     assert _FakeThread.started[-1][1][1] == ["/opt/data/rosbag2_l2_20260527_120000"]
     assert _FakeThread.started[-1][1][2] == ["/cmd_vel", "/odom"]
     assert _FakeThread.started[-1][1][3] == 5
+
+
+def test_bag_stop_recording_second_click_cancels_local_wait(monkeypatch):
+    _FakeThread.started = []
+    monkeypatch.setattr(bag_page.threading, "Thread", _FakeThread)
+    page = _FakeRecordStartStopPage()
+    page.is_recording = True
+    page.stop_requested = True
+    page.current_bag_paths = ["/opt/data/rosbag2_l2_20260527_120000"]
+
+    assert BagPage.stop_recording(page) is True
+    assert page.is_recording is False
+    assert page.stop_requested is False
+    assert page.record_stop_request_id == 5
+    assert page.record_status_label.text() == "已取消等待"
+    assert page.start_btn.enabled is True
+    assert page.stop_btn.enabled is False
+    assert _FakeThread.started == []
 
 
 def test_bag_quick_check_remote_recording_logs_summary():

@@ -9,7 +9,7 @@ from dog_remote_tool.modules.bag import calibration as bag_calibration
 from dog_remote_tool.modules.bag import finalize as bag_finalize
 from dog_remote_tool.modules.bag import logs as bag_logs
 from dog_remote_tool.modules.bag import recording_control as bag_recording_control
-from dog_remote_tool.modules.bag import recording_remote as bag_recording_remote
+from dog_remote_tool.modules.bag import remote_helper as bag_remote_helper
 from dog_remote_tool.modules.bag import transfer as bag_transfer
 
 
@@ -96,8 +96,8 @@ def test_recording_control_start_and_stop_use_injected_ssh_runner():
     def ssh_bash_command(remote_cmd, timeout=15, *, login_shell=True):
         calls.append((remote_cmd, timeout, login_shell))
         if len(calls) == 1:
-            return subprocess.CompletedProcess([], 0, stdout="__DOG_REMOTE_RECORD_STARTED__ pid=12 log=/tmp/record.log\n", stderr="")
-        return subprocess.CompletedProcess([], 0, stdout="remote ros2 bag record stopped after SIGINT\n", stderr="")
+            return subprocess.CompletedProcess([], 0, stdout='{"ok":true,"pid":12,"log":"/tmp/record.log"}\n', stderr="")
+        return subprocess.CompletedProcess([], 0, stdout='{"ok":true,"running":false,"signal":"SIGINT"}\n', stderr="")
 
     ok, error = bag_recording_control.start_remote_recording(
         ["/tmp/zsibot/bag/rosbag2_l2_20260525_093001"],
@@ -112,23 +112,24 @@ def test_recording_control_start_and_stop_use_injected_ssh_runner():
         ssh_bash_command,
         messages.append,
     )
-    assert [call[1:] for call in calls] == [(20, False), (220, False)]
+    assert [call[1:] for call in calls] == [(10, False), (12, False)]
     assert any("远端后台录制已启动" in message for message in messages)
     assert any("远端停止" in message for message in messages)
 
 
-def test_recording_remote_wrapper_matches_output_option_variants():
+def test_recording_helper_commands_use_fast_helper_without_ps_polling():
     path = "/tmp/zsibot/bag/rosbag2_l2_20260525_093001"
 
-    start_command = bag_recording_remote.start_recording_wrapper_command("ros2 bag record --output=/tmp/a /foo", [path])
-    stop_command = bag_recording_remote.stop_recording_command([path])
+    start_command = bag_remote_helper.start_recording_command("ros2 bag record --output=/tmp/a /foo", [path])
+    stop_command = bag_remote_helper.stop_recording_command([path])
 
-    for command in (start_command, stop_command):
-        assert "ps -eww -o pid=,cmd=" in command
-        assert "--output=" in command
-        assert "--output " in command
-        assert "-o=" in command
-        assert 'index($0, "DOG_REMOTE_RECORD_SCRIPT") > 0 { next }' in command
+    assert "/tmp/dog_remote_bag_helper.py start" in start_command
+    assert "/tmp/dog_remote_bag_helper.py stop" in stop_command
+    assert "ros2 bag record --output=/tmp/a /foo" in start_command
+    assert path in stop_command
+    assert "ps -eww -o pid=,cmd=" not in start_command
+    assert "ps -eww -o pid=,cmd=" not in stop_command
+    assert "wait_until_stopped SIGINT 180" not in stop_command
 
 
 def test_pull_multiple_bags_uses_batch_finalize_fast_path(tmp_path):

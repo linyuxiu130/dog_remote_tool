@@ -136,7 +136,10 @@ def test_format_size():
 def test_remote_bags_size_helpers_batch_paths():
     command = bag_remote_files.remote_bags_size_command(["/tmp/a", "/tmp/b space"])
 
-    assert "for path in /tmp/a '/tmp/b space'" in command
+    assert "/tmp/dog_remote_bag_helper.py sizes" in command
+    assert "/tmp/a" in command
+    assert "/tmp/b space" in command
+    assert "find " not in command
     assert bag_remote_files.parse_remote_bags_size("noise\n4096\n") == 4096
     assert bag_remote_files.parse_remote_bags_size("missing") == 0
 
