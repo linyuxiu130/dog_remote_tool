@@ -1,0 +1,95 @@
+{
+  "usb": {
+    "dfu_fastboot": [
+      {"function": "check_board_status", "progress": [1, 5]},
+      {"function": "prepare_boot", "progress": [6, 10]},
+      {"function": "dfu_boot", "progress": [11, 20]},
+      {"function": "prepare_burn", "progress": [21, 25]},
+      {"function": "fastboot_burn", "progress": [26, 85]},
+      {"function": "after_burn", "progress": [86, 90]},
+      {"function": "check_burn_result", "progress": [91, 100]}
+    ],
+    "fastboot": [
+      {"function": "check_board_status", "progress": [1, 5]},
+      {"function": "prepare_burn", "progress": [6, 25]},
+      {"function": "fastboot_burn", "progress": [26, 85]},
+      {"function": "after_burn", "progress": [86, 90]},
+      {"function": "check_burn_result", "progress": [91, 100]}
+    ]
+  },
+  "serial": {
+    "xmodem_xmodem": [
+      {"function": "check_board_status", "progress": [1, 5]},
+      {"function": "prepare_boot", "progress": [6, 10]},
+      {"function": "xmodem_boot", "progress": [11, 20]},
+      {"function": "prepare_burn", "progress": [21, 25]},
+      {"function": "xmodem_burn", "progress": [26, 85]},
+      {"function": "after_burn", "progress": [86, 90]},
+      {"function": "check_burn_result", "progress": [91, 100]}
+    ],
+    "xmodem": [
+      {"function": "check_board_status", "progress": [1, 5]},
+      {"function": "prepare_burn", "progress": [6, 25]},
+      {"function": "xmodem_burn", "progress": [26, 85]},
+      {"function": "after_burn", "progress": [86, 90]},
+      {"function": "check_burn_result", "progress": [91, 100]}
+    ]
+  },
+  "serial_usb": {
+    "xmodem_fastboot": [
+      {"function": "check_board_status", "progress": [1, 5]},
+      {"function": "prepare_boot", "progress": [6, 10]},
+      {"function": "xmodem_boot", "progress": [11, 20]},
+      {"function": "prepare_burn", "progress": [21, 25]},
+      {"function": "fastboot_burn", "progress": [26, 85]},
+      {"function": "after_burn", "progress": [86, 90]},
+      {"function": "check_burn_result", "progress": [91, 100]}
+    ],
+    "fastboot": [
+      {"function": "check_board_status", "progress": [1, 5]},
+      {"function": "prepare_burn", "progress": [6, 25]},
+      {"function": "fastboot_burn", "progress": [26, 85]},
+      {"function": "after_burn", "progress": [86, 90]},
+      {"function": "check_burn_result", "progress": [91, 100]}
+    ],
+    "xmodem_dfu": [
+      {"function": "check_board_status", "progress": [1, 5]},
+      {"function": "prepare_boot", "progress": [6, 10]},
+      {"function": "xmodem_boot", "progress": [11, 20]},
+      {"function": "prepare_burn", "progress": [21, 25]},
+      {"function": "dfu_burn", "progress": [26, 85]},
+      {"function": "after_burn", "progress": [86, 90]},
+      {"function": "check_burn_result", "progress": [91, 100]}
+    ],
+    "dfu": [
+      {"function": "check_board_status", "progress": [1, 5]},
+      {"function": "prepare_burn", "progress": [6, 25]},
+      {"function": "dfu_burn", "progress": [26, 85]},
+      {"function": "after_burn", "progress": [86, 90]},
+      {"function": "check_burn_result", "progress": [91, 100]}
+    ]
+  },
+  "ethernet": {
+    "fastboot": [
+      {"function": "fastboot_udp_burn"}
+    ]
+  },
+  "serial_ethernet": {
+    "xmodem_fastboot": [
+      {"function": "check_board_status", "progress": [1, 5]},
+      {"function": "prepare_boot", "progress": [6, 10]},
+      {"function": "xmodem_boot", "progress": [11, 20]},
+      {"function": "prepare_burn", "progress": [21, 25]},
+      {"function": "fastboot_udp_burn", "progress": [26, 85]},
+      {"function": "after_burn", "progress": [86, 90]},
+      {"function": "check_burn_result", "progress": [91, 100]}
+    ],
+    "fastboot": [
+      {"function": "check_board_status", "progress": [1, 5]},
+      {"function": "prepare_burn", "progress": [6, 25]},
+      {"function": "fastboot_udp_burn", "progress": [26, 85]},
+      {"function": "after_burn", "progress": [86, 90]},
+      {"function": "check_burn_result", "progress": [91, 100]}
+    ]
+  }
+}

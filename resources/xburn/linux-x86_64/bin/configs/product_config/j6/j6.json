@@ -1,0 +1,24 @@
+{
+    "name": "J6",
+
+    "support_link_type": ["serial", "usb"],
+    "support_partitions": [
+        "all", "gpt", "binfo1", "binfo2", "binfo3", "sbl", "sblbak0",
+        "sblbak1", "sblbak2", "mcore_a", "mcore_b", "ddrc_a", "ddrc_b",
+        "bl31_a", "bl31_b", "uboot_a", "uboot_b", "boot_a", "boot_b",
+        "bpu_a", "bpu_b", "vbmeta_a", "vbmeta_b", "system_a", "system_b",
+        "app", "bpu", "middleware"
+    ],
+    "serial_mode":["fastboot"],
+    "baudrate":921600,
+    "spi_boot_dev": "FT4232",
+    "spi_freq": 180000,
+
+    "ufs_gpt": "gpt_main_ufs.img",
+
+    "mcu_bin":"mcu.bin",
+    "mcu_img":"mcu.img",
+    "mcu_part": "MCU_Cluster0",
+    "mcu_baud":921600,
+    "hsm_baud":921600
+}

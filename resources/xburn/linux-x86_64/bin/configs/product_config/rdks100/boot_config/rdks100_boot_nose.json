@@ -1,0 +1,72 @@
+[
+    {
+        "file": "xmodem_tools/nosec/out/s100/cmd_load_sbl",
+        "uart":"mcu",
+        "method": "xmodem",
+        "usb_tag":"",
+        "dfu_arg":"-d,3652:6610 -a 0",
+        "usb_detect_timeout":5,
+        "timeout": 1
+    },
+    {
+        "file": "xmodem_tools/nosec/out/s100/sbl.pkg",
+        "uart":"mcu",
+        "method": "xmodem",
+        "dfu_arg":"-d,3652:6610 -a 0",
+        "usb_detect_timeout":1,
+        "timeout": 1
+    },
+    {
+        "file": "xmodem_tools/nosec/out/s100/cmd_exit_sbl",
+        "uart":"mcu",
+        "method": "xmodem",
+        "dfu_arg":"-d,3652:6610 -a 0",
+        "usb_detect_timeout":5,
+        "timeout": 1
+    },
+    {
+        "file": "xmodem_tools/nosec/out/s100/u-boot-spl_ddr.bin",
+        "uart":"mcu",
+        "method": "xmodem",
+        "dfu_arg":"-d,3652:6620 -a 0 -R",
+        "usb_detect_timeout":10,
+        "timeout": 1
+    },
+    {
+        "file": "xmodem_tools/nosec/out/s100/S100_MCU_V1.0.bin",
+        "change_file_name":"",
+        "uart":"mcu",
+        "method": "xmodem",
+        "dfu_arg":"-d,3652:6620 -a 0 -R",
+        "usb_detect_timeout":27
+    },
+    {
+        "file": "xmodem_tools/nosec/out/s100/hobot-s100-bl31.dtb",
+        "uart":"acore",
+        "method": "xmodem",
+        "dfu_arg":"-d,3652:6625 -a 0",
+        "acore":"",
+        "usb_detect_timeout":5
+    },
+    {
+        "file": "xmodem_tools/nosec/out/s100/bl31.bin",
+        "uart":"acore",
+        "method": "xmodem",
+        "dfu_arg":"-d,3652:6625 -a 1",
+        "usb_detect_timeout":5
+    },
+    {
+        "file": "xmodem_tools/nosec/out/s100/tee-pager_v2.bin",
+        "uart":"acore",
+        "method": "xmodem",
+        "dfu_arg":"-d,3652:6625 -a 2",
+        "usb_detect_timeout":4
+    },
+    {
+        "file": "xmodem_tools/nosec/out/s100/u-boot.bin",
+        "uart":"acore",
+        "method": "xmodem",
+        "dfu_arg":"-d,3652:6625 -a 3 -R",
+        "usb_detect_timeout":5
+    }
+]

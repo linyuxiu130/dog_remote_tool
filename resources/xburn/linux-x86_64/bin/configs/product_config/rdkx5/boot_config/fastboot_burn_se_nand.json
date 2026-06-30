@@ -1,0 +1,16 @@
+[
+    {
+        "file": "nand_disk.img",
+        "skip_if_not_exists": true,
+        "partition": ["addr:0x0"],
+        "partition_name": "miniboot_flash",
+        "set_medium":"spinand0"
+    },
+    {
+        "file": "rdk-x5-ubuntu22-*.img",
+        "skip_if_not_exists": true,
+        "partition": ["addr:0x0"],
+        "partition_name": "sdcard",
+        "set_medium":"mmc1"
+    }
+]

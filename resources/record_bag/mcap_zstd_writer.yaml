@@ -1,0 +1,5 @@
+noChunking: false
+noChunkCRC: true
+compression: Zstd
+compressionLevel: Fast
+forceCompression: false

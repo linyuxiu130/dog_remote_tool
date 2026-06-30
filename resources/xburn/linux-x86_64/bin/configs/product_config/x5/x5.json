@@ -1,0 +1,30 @@
+{
+    "name": "X5",
+
+    "support_link_type": ["usb", "serial_usb", "serial_ethernet", "serial"],
+    "support_partitions": [
+        "all", "mbr", "miniboot", "miniboot_bak1", "misc",
+        "uboot", "ubootenv", "vbmeta", "boot", "system",
+        "hbre", "app", "private", "userdata"
+    ],
+
+    "support_storage_type": ["emmc"],
+    "support_firmware_type": ["secure", "nosecure"],
+
+    "usb3_enable": true,
+
+    "baudrate":"115200",
+
+    "upfile_json": ["x5-soc-debug-gpt.json", "x5-soc-debug-nand-gpt.json"],
+
+    "usb_select": false,
+    "serial_into_usb": "usb20",
+    "usb_vendor": "3652",
+    "mmc_index": "0",
+
+    "username": "root",
+    "password": "root",
+
+    "cmd_reboot_usb2_fasboot": "reboot -m usb2 -f",
+    "cmd_reboot_usb3_fasboot": "reboot -m usb3 -f"
+}

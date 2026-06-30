@@ -1,0 +1,14 @@
+[
+    {
+        "file": "uart_usb/bl2_uart_ddr.bin",
+        "uart":"acore",
+        "method": "xmodem",
+        "timeout": 2
+    },
+    {
+        "file": "uart_usb/bl3x_all.bin",
+        "uart":"acore",
+        "method": "xmodem",
+        "timeout": 2
+    }
+]

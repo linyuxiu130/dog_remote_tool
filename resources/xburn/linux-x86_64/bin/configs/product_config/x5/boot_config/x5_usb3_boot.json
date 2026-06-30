@@ -1,0 +1,20 @@
+[
+    {
+        "file": "uart_usb/bl2_usb3_ddr.bin",
+        "uart":"acore",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:1510 -a 0",
+        "usb_detect_timeout": 5,
+        "timeout": 2
+
+    },
+    {
+        "file": "uart_usb/bl3x_all.bin",
+        "uart":"acore",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:1520 -a 0",
+        "usb_detect_timeout": 5,
+        "timeout": 2
+
+    }
+]

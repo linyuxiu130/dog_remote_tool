@@ -1,0 +1,32 @@
+{
+    "name": "RDKS100",
+
+    "support_link_type": ["usb"],
+    "support_partitions": [
+        "all", "gpt", "binfo1", "binfo2", "binfo3","sbl", "sblbak0",
+        "sblbak1", "sblbak2", "mcore_a", "mcore_b", "ddrc_a",
+        "ddrc_b", "bl31_a", "bl31_b", "uboot_a", "uboot_b", "boot_a",
+        "boot_b", "bpu_a", "bpu_b", "vbmeta_a", "vbmeta_b", "system_a",
+        "system_b", "app", "bpu", "middleware"
+    ],
+
+    "support_disks": ["miniboot_flash", "miniboot_emmc", "emmc", "miniboot_nvme", "nvme"],
+
+    "support_storage_type": ["emmc", "ufs", "nvme"],
+    "support_firmware_type": ["secure", "nosecure", "secure_ohp"],
+
+    "usb3_enable": false,
+
+    "baudrate": "921600",
+
+    "usb_select": false,
+    "serial_into_usb": "usb20",
+    "usb_vendor": "3652",
+    "mmc_index": "0",
+
+    "username": "root",
+    "password": "root",
+
+    "cmd_reboot_usb2_fasboot": "reboot usb2 -f",
+    "cmd_reboot_usb3_fasboot": "reboot usb3 -f"
+}

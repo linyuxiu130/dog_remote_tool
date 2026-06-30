@@ -1,0 +1,32 @@
+{
+    "log_level": "info",
+
+    "product_type": "X5",
+    "link_type": "usb",
+
+    "dl_mode": "fastboot",
+    "img_files": [""],
+    "erase_scrub": false,
+    "security_type": "secure",
+
+    "boot_check": false,
+
+    "batch_num": 1,
+
+    "host_ip": ["192.168.1.100"],
+    "board_ip": ["192.168.1.10"],
+    "mask": ["255.255.255.0"],
+    "gateway": ["192.168.1.1"],
+    "ipv6": false,
+
+    "usb_port": ["usb2.0"],
+
+    "serial": ["N/A"],
+    "baudrate": [921600],
+
+    "mcu_serial": ["N/A"],
+    "hsm_serial": ["N/A"],
+
+    "select_part": ["all"],
+    "backup_part": []
+}

@@ -1,0 +1,36 @@
+from __future__ import annotations
+
+from dog_remote_tool.core.paths import app_root as _core_app_root
+from dog_remote_tool.core.profiles import ProductProfile
+import dog_remote_tool.modules.remote_access.nx as _nx
+import dog_remote_tool.modules.remote_access.public as _public
+
+
+REMOTE_ACCESS_RESOURCE_DIR = _public.REMOTE_ACCESS_RESOURCE_DIR
+REMOTE_ACCESS_SCRIPT_NAME = _public.REMOTE_ACCESS_SCRIPT_NAME
+REMOTE_ACCESS_BINARY_NAME = _public.REMOTE_ACCESS_BINARY_NAME
+NX_REMOTE_ACCESS_SCRIPT = _public.default_remote_access_script_path()
+PUBLIC_SERVER = _public.PUBLIC_SERVER
+DEFAULT_PUBLIC_SSID = _public.DEFAULT_PUBLIC_SSID
+NX_REMOTE_SCRIPT_PATH = _nx.NX_REMOTE_SCRIPT_PATH
+NX_REMOTE_SCRIPT_DIR = _nx.NX_REMOTE_SCRIPT_DIR
+NX_COMMUNITY_NODE_DEB = _nx.NX_COMMUNITY_NODE_DEB
+app_root = _core_app_root
+
+
+default_community_node_deb = _nx.default_community_node_deb
+default_remote_access_script_path = _public.default_remote_access_script_path
+internet_check_command = _nx.internet_check_command
+start_remote_access_command = _nx.start_remote_access_command
+status_command = _nx.status_command
+deploy_nx_remote_access_script_command = _nx.deploy_nx_remote_access_script_command
+install_community_node_command = _nx.install_community_node_command
+nx_robot_launch_status_command = _nx.nx_robot_launch_status_command
+public_access_probe_command = _public.public_access_probe_command
+public_ssid_probe_command = _public.public_ssid_probe_command
+public_access_action_command = _public.public_access_action_command
+sync_remote_access_files_command = _public.sync_remote_access_files_command
+
+
+def replace_remote_access_script_command(profile: ProductProfile):
+    return _nx.replace_remote_access_script_command(profile, default_remote_access_script_path)

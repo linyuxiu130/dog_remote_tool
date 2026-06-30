@@ -1,0 +1,129 @@
+[
+    {
+        "file": "fpt.img",
+        "partition": ["hb_vspiflash"],
+        "partition_name": "hb_vspiflash",
+        "changetype":"mtd"
+    },
+    {
+        "file": "SBL.img",
+        "partition": ["SBL", "SBL_bak"],
+        "partition_name": "SBL",
+        "changetype":"mtd"
+    },
+    {
+        "file": "HSM_FW.img",
+        "partition": ["HSM_FW", "HSM_FW_bak"],
+        "partition_name": "HSM_FW",
+        "changetype":"mtd"
+    },
+    {
+        "file": "HSM_RCA.img",
+        "partition": ["HSM_RCA", "HSM_RCA_bak"],
+        "partition_name": "HSM_RCA",
+        "changetype":"mtd"
+    },
+    {
+        "file": "keyimage.img",
+        "partition": ["keyimage", "keyimage_bak"],
+        "partition_name": "keyimage",
+        "changetype":"mtd"
+    },
+    {
+        "file": "MCU_Cluster0.img",
+        "partition": ["MCU_a", "MCU_b"],
+        "partition_name": "MCU",
+        "change_file_name":"",
+        "changetype":"mtd"
+    },
+    {
+        "file": "spl.img",
+        "partition": ["spl_a", "spl_b"],
+        "partition_name": "spl",
+        "changetype":"mtd"
+    },
+    {
+        "file": "misc.img",
+        "partition": ["misc"],
+        "partition_name": "misc",
+        "changetype":"mtd"
+    },
+    {
+        "file": "scp.img",
+        "partition": ["scp_a", "scp_b"],
+        "partition_name": "scp",
+        "changetype":"mtd"
+    },
+    {
+        "file": "gpt_main.img",
+        "partition": ["gpt"],
+        "partition_name": "gpt",
+        "changetype":"blk"
+    },
+    {
+        "file": "vbmeta.img",
+        "partition": ["vbmeta_a", "vbmeta_b"],
+        "partition_name": "vbmeta",
+        "changetype":"blk"
+    },
+    {
+        "file": "acore_cfg.img",
+        "partition": ["acore_cfg_a", "acore_cfg_b"],
+        "partition_name": "acore_cfg",
+        "changetype":"blk"
+    },
+    {
+        "file": "boot.img",
+        "partition": ["boot_a", "boot_b"],
+        "partition_name": "boot",
+        "changetype":"blk"
+    },
+    {
+        "file": "bl31.img",
+        "partition": ["bl31_a", "bl31_b"],
+        "partition_name": "bl31",
+        "changetype":"blk"
+    },
+    {
+        "file": "uboot.img",
+        "partition": ["uboot_a", "uboot_b"],
+        "partition_name": "uboot",
+        "changetype":"blk"
+    },
+    {
+        "file": "optee.img",
+        "partition": ["optee_a", "optee_b"],
+        "partition_name": "optee",
+        "changetype":"blk"
+    },
+    {
+        "file": "basesystem.img",
+        "partition": ["basesystem_a", "basesystem_b"],
+        "partition_name": "basesystem",
+        "changetype":"blk"
+    },
+    {
+        "file": "middleware.img",
+        "partition": ["middleware_a", "middleware_b"],
+        "partition_name": "middleware",
+        "changetype":"blk"
+    },
+    {
+        "file": "system.img",
+        "partition": ["system_a", "system_b"],
+        "partition_name": "system",
+        "changetype":"blk"
+    },
+    {
+        "file": "system_verity.img",
+        "partition": ["system_verity_a", "system_verity_b"],
+        "partition_name": "system_verity",
+        "changetype":"blk"
+    },
+    {
+        "file": "app.img",
+        "partition": ["app_a", "app_b"],
+        "partition_name": "app",
+        "changetype":"blk"
+    }
+]

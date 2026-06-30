@@ -1,0 +1,173 @@
+from __future__ import annotations
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import (
+    QComboBox,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QProgressBar,
+    QPushButton,
+    QShortcut,
+    QStackedWidget,
+    QVBoxLayout,
+)
+
+from dog_remote_tool.ui.pages.file_manager.icon_view import RemoteFileIconView
+from dog_remote_tool.ui.pages.file_manager.tree_view import RemoteFileTreeView
+
+
+class FileManagerLayoutMixin:
+    def _build_ui(self) -> None:
+        root = QVBoxLayout(self)
+        root.setContentsMargins(12, 12, 12, 12)
+        root.setSpacing(12)
+
+        header = QFrame()
+        header.setObjectName("PageHeader")
+        header_layout = QVBoxLayout(header)
+        header_layout.setContentsMargins(12, 7, 12, 7)
+        title = QLabel("文件管理")
+        title.setObjectName("AppTitle")
+        subtitle = QLabel("远端目录查看、上传、下载和整理")
+        subtitle.setObjectName("Muted")
+        header_layout.addWidget(title)
+        header_layout.addWidget(subtitle)
+        root.addWidget(header)
+
+        toolbar = QFrame()
+        toolbar.setObjectName("Panel")
+        toolbar_layout = QVBoxLayout(toolbar)
+        toolbar_layout.setContentsMargins(14, 12, 14, 12)
+        toolbar_layout.setSpacing(6)
+
+        path_row = QHBoxLayout()
+        path_row.setContentsMargins(0, 0, 0, 0)
+        path_row.setSpacing(6)
+        path_label = QLabel("路径")
+        path_label.setObjectName("FieldLabel")
+        self.favorite_combo = QComboBox()
+        self.favorite_combo.setMinimumWidth(150)
+        self.favorite_combo.setMaximumWidth(210)
+        self.favorite_combo.view().setMinimumWidth(420)
+        self.favorite_combo.activated.connect(self._favorite_selected)
+        self.add_favorite_btn = QPushButton("收藏")
+        self.add_favorite_btn.clicked.connect(self.add_current_favorite)
+        self.path_edit = QLineEdit(self.current_path)
+        self.path_edit.returnPressed.connect(lambda: self.navigate_to(self.path_edit.text()))
+        self.search_edit = QLineEdit()
+        self.search_edit.setPlaceholderText("搜索")
+        self.search_edit.setMinimumWidth(220)
+        self.search_edit.setMaximumWidth(360)
+        self.search_edit.returnPressed.connect(self.search_files)
+        self.search_btn = QPushButton("搜索")
+        self.search_btn.clicked.connect(self.search_files)
+        self.up_btn = QPushButton("上一级")
+        self.up_btn.clicked.connect(self.go_parent)
+        self.home_btn = QPushButton("主目录")
+        self.home_btn.clicked.connect(self.go_home)
+        self.refresh_btn = QPushButton("刷新")
+        self.refresh_btn.setObjectName("SoftPrimary")
+        self.refresh_btn.clicked.connect(lambda: self.refresh_directory(force=True, reason="手动刷新"))
+        path_row.addWidget(path_label)
+        path_row.addWidget(self.path_edit, 1)
+        path_row.addWidget(self.favorite_combo)
+        path_row.addWidget(self.add_favorite_btn)
+        path_row.addWidget(self.up_btn)
+        path_row.addWidget(self.home_btn)
+        path_row.addWidget(self.refresh_btn)
+        path_row.addWidget(self.search_edit)
+        path_row.addWidget(self.search_btn)
+        toolbar_layout.addLayout(path_row)
+
+        action_row = QHBoxLayout()
+        action_row.setContentsMargins(0, 0, 0, 0)
+        action_row.setSpacing(6)
+        self.upload_btn = QPushButton("上传")
+        self.upload_btn.setObjectName("Primary")
+        self.upload_btn.clicked.connect(self.pick_upload_files)
+        self.download_btn = QPushButton("下载")
+        self.download_btn.clicked.connect(self.download_selected)
+        self.delete_btn = QPushButton("删除")
+        self.delete_btn.setObjectName("Danger")
+        self.delete_btn.clicked.connect(self.delete_selected)
+        self.hidden_btn = QPushButton("显示隐藏")
+        self.hidden_btn.setCheckable(True)
+        self.hidden_btn.clicked.connect(self.toggle_hidden_files)
+        self.view_toggle_btn = QPushButton("列表显示" if self.current_view_mode == "icon" else "图标显示")
+        self.view_toggle_btn.clicked.connect(self.toggle_view_mode)
+        self.target_label = QLabel("")
+        self.target_label.setObjectName("PathBadge")
+        self.status_label = QLabel("就绪")
+        self.status_label.setObjectName("Muted")
+        self.cancel_action_btn = QPushButton("停止")
+        self.cancel_action_btn.setObjectName("Danger")
+        self.cancel_action_btn.clicked.connect(self.cancel_action)
+        self.cancel_action_btn.hide()
+        for button in (self.upload_btn, self.download_btn, self.delete_btn):
+            action_row.addWidget(button)
+        action_row.addWidget(self.hidden_btn)
+        action_row.addWidget(self.view_toggle_btn)
+        action_row.addStretch(1)
+        action_row.addWidget(self.target_label)
+        action_row.addWidget(self.status_label)
+        action_row.addWidget(self.cancel_action_btn)
+        toolbar_layout.addLayout(action_row)
+
+        self.transfer_panel = QFrame()
+        self.transfer_panel.setObjectName("TransferPanel")
+        transfer_row = QHBoxLayout(self.transfer_panel)
+        transfer_row.setContentsMargins(10, 7, 10, 7)
+        transfer_row.setSpacing(12)
+        self.transfer_label = QLabel("传输准备中")
+        self.transfer_label.setObjectName("Muted")
+        self.transfer_progress = QProgressBar()
+        self.transfer_progress.setRange(0, 100)
+        self.transfer_progress.setValue(0)
+        transfer_row.addWidget(self.transfer_label)
+        transfer_row.addWidget(self.transfer_progress, 1)
+        self.transfer_panel.hide()
+        toolbar_layout.addWidget(self.transfer_panel)
+        root.addWidget(toolbar)
+
+        self.icon_view = RemoteFileIconView()
+        self.icon_view.clicked.connect(lambda _index: self._update_selection_detail())
+        self.icon_view.doubleClicked.connect(self._open_icon_item)
+        self.icon_view.files_dropped.connect(self.upload_paths)
+        self.icon_view.customContextMenuRequested.connect(self._show_context_menu)
+        self.icon_view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.icon_view.selectionModel().selectionChanged.connect(lambda _selected, _deselected: self._update_selection_detail())
+
+        self.table = RemoteFileTreeView()
+        self.table.clicked.connect(lambda _index: self._update_selection_detail())
+        self.table.doubleClicked.connect(self._open_table_index)
+        self.table.files_dropped.connect(self.upload_paths)
+        self.table.customContextMenuRequested.connect(self._show_context_menu)
+        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table.selectionModel().selectionChanged.connect(lambda _selected, _deselected: self._update_selection_detail())
+
+        self.view_stack = QStackedWidget()
+        self.view_stack.addWidget(self.icon_view)
+        self.view_stack.addWidget(self.table)
+        self.view_stack.setCurrentWidget(self.icon_view if self.current_view_mode == "icon" else self.table)
+        root.addWidget(self.view_stack, 1)
+        self.detail_label = QLabel("未选择项目")
+        self.detail_label.setObjectName("Muted")
+        self.detail_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        root.addWidget(self.detail_label)
+        self._install_shortcuts()
+        self._reload_favorites()
+        self._update_profile_badge()
+        self._render_breadcrumb(self.current_path)
+
+    def _install_shortcuts(self) -> None:
+        QShortcut(QKeySequence("F5"), self, activated=lambda: self.refresh_directory(force=True, reason="手动刷新"))
+        QShortcut(QKeySequence("Del"), self, activated=self.delete_selected)
+        QShortcut(QKeySequence("F2"), self, activated=self.rename_selected)
+        QShortcut(QKeySequence("Ctrl+N"), self, activated=self.make_file)
+        QShortcut(QKeySequence("Ctrl+Shift+N"), self, activated=self.make_directory)
+        QShortcut(QKeySequence("Ctrl+C"), self, activated=self.copy_remote_selection)
+        QShortcut(QKeySequence("Ctrl+X"), self, activated=self.cut_remote_selection)
+        QShortcut(QKeySequence("Ctrl+V"), self, activated=self.paste_remote_clipboard)

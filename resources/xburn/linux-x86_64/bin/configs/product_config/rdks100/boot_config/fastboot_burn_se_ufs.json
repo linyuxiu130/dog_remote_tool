@@ -1,0 +1,30 @@
+[
+    {
+        "file": "disk/miniboot_flash.img",
+        "partition": ["hb_vspiflash"],
+        "partition_name": "miniboot_flash",
+        "changetype":"mtd",
+        "flash_timeout": 1000,
+        "fetch_arg": "0x0@all",
+        "fetch_timeout": 1000,
+        "fetch_img": "disk/miniboot_flash_backup.img"
+    },
+    {
+        "file": "disk/miniboot_ufs.img",
+        "partition": ["0x0"],
+        "partition_name": "miniboot_ufs",
+        "changetype":"blk",
+        "fetch_arg": "Not supported",
+        "fetch_timeout": 1000,
+        "fetch_img": ""
+    },
+    {
+        "file": "disk/ufs_disk.simg",
+        "partition": ["0x0"],
+        "partition_name": "ufs",
+        "changetype":"blk",
+        "fetch_arg": "0x0@all",
+        "fetch_timeout": 7200,
+        "fetch_img": "disk/ufs_disk_backup.img"
+    }
+]

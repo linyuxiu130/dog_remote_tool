@@ -1,0 +1,29 @@
+# Python cache and test output
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local build and release artifacts
+.build/
+.cache/
+release/*.run
+release/BUILD_MANIFEST.txt
+
+# Remote debug snapshots and pulled runtime data
+remote_snapshots/
+data/
+logs/
+fault_logs/
+
+# Local editor and OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+

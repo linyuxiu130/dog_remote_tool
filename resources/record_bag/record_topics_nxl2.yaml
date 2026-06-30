@@ -1,0 +1,91 @@
+navigation:
+  name: 导航与底盘状态
+  topics:
+  - /robot_control_server/mc_state
+  - /robot_control_server/nav_pose
+  - /robot_control_server/inplace_pose
+  - /robot_control_server/current_requester_info
+  - /robot_manager/robot_status
+  - /robot_roamerx/alg_status
+  - /robot_roamerx/alg_dtc
+  - /robot_roamerx/is_in_nav_control
+  - /robot_remote/heartbeat
+  - /robot_remote/locked_state
+  - /robot_remote/obstacle_avoidance
+  - /robot_remote/reverse_head_tail
+  - /meb/is_enabled
+  - /meb/should_brake
+  - /tf/tf_req
+  - /tf/tf_ack
+arc:
+  name: 回充与电池
+  topics:
+  - /arc/charging_dock_info
+  - /battery_controller/battery1
+  - /battery_controller/battery2
+  - /battery_controller/battery_all
+  - /robot_monitor/power_on_status
+  - /robot_monitor/diagnostic_status
+  - /diagnostics
+  - /diagnostics_agg
+  - /diagnostics_toplevel_state
+slam:
+  name: 建图与感知
+  topics:
+  - /front_lidar
+  - /front_lidar/imu
+  - /imu_shm_publisher/imu_central
+  - /joint_shm_controller/joint_sensor
+  - /joint_shm_controller/joint_states
+  zstd_topics:
+  - /stereo_camera/image_compressed
+  - /stereo_camera/left/image_compressed
+  - /stereo_camera/right/image_compressed
+  - /front_fisheye/image_compressed
+  - /rear_fisheye/image_compressed
+  - /left_fisheye/image_compressed
+  - /right_fisheye/image_compressed
+  - /fisheye/image_compressed
+localization:
+  name: 定位与安全
+  topics:
+  - /front_lidar
+  - /front_lidar/imu
+  - /uwb
+  - /uwb_driver/uwb_connected
+  - /estop_controller/hw_estop/state
+  - /estop_controller/sw_estop/state
+  - /switch_controller/hw_estop/state
+  - /robot_control_server/mc_state
+  - /robot_roamerx/alg_status
+l2_slam_localization:
+  name: L2建图定位必录
+  topics:
+  - /front_lidar
+  - /front_lidar/imu
+  - /stereo_camera/left/image_compressed
+perception:
+  name: 环视相机
+  topics: []
+  zstd_topics:
+  - /stereo_camera/image_compressed
+  - /stereo_camera/left/image_compressed
+  - /stereo_camera/right/image_compressed
+  - /front_fisheye/image_compressed
+  - /rear_fisheye/image_compressed
+  - /left_fisheye/image_compressed
+  - /right_fisheye/image_compressed
+  - /fisheye/image_compressed
+diagnostics:
+  name: 诊断与控制
+  topics:
+  - /diagnostics
+  - /diagnostics_agg
+  - /diagnostics_toplevel_state
+  - /parameter_events
+  - /rosout
+  - /robot_camera/record_mp4_status
+  - /fill_light_controller/auto_work_state
+  - /fill_light_controller/back_light/state
+  - /fill_light_controller/front_light/state
+  - /led_controller/auto_work_state

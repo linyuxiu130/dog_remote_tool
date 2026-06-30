@@ -1,0 +1,104 @@
+[
+    {
+        "file": "xmodem_tools/out/j6e/evm/cmd_load_hsmfw_ohp",
+        "uart":"mcu",
+        "method": "xmodem",
+        "usb_tag":"",
+        "dfu_arg":"--device ,3652:6610 -a 0",
+        "usb_detect_timeout":5,
+        "timeout": 2
+    },
+    {
+        "file": "xmodem_tools/out/j6e/evm/hsmfw_se_ohp.pkg",
+        "uart":"mcu",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:6610 -a 0",
+        "usb_detect_timeout":1,
+        "timeout": 2
+    },
+    {
+        "file": "xmodem_tools/out/j6e/evm/cmd_exit_hsmfw_ohp",
+        "uart":"mcu",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:6610 -a 0",
+        "usb_detect_timeout":5,
+        "timeout": 2
+    },
+    {
+        "file": "img_packages/fpt.img",
+        "uart":"hsm",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:6615 -a 0 -R",
+        "usb_detect_timeout":5,
+        "timeout": 2
+    },
+    {
+        "file": "img_packages/keyimage_ohp.img",
+        "uart":"hsm",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:6615 -a 0 -R",
+        "usb_detect_timeout":5,
+        "timeout": 2
+    },
+    {
+        "file": "img_packages/SBL.img",
+        "uart":"hsm",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:6615 -a 0 -R",
+        "usb_detect_timeout":5,
+        "timeout": 2
+    },
+    {
+        "file": "xmodem_tools/out/j6e/evm/hsmrca_ohp.pkg",
+        "uart":"hsm",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:6615 -a 0 -R",
+        "usb_detect_timeout":5,
+        "timeout": 2
+    },
+
+    {
+        "file": "img_packages/spl.img",
+        "uart":"mcu",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:6620 -a 0 -R",
+        "usb_detect_timeout":10
+    },
+    {
+        "file": "img_packages/MCU_Cluster0.img",
+        "change_file_name":"",
+        "uart":"mcu",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:6620 -a 0 -R",
+        "acore":"",
+        "usb_detect_timeout":25
+    },
+    {
+        "file": "img_packages/acore_cfg.img",
+        "uart":"acore",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:6625 -a 0",
+        "usb_detect_timeout":5
+    },
+    {
+        "file": "img_packages/bl31.img",
+        "uart":"acore",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:6625 -a 1",
+        "usb_detect_timeout":5
+    },
+    {
+        "file": "img_packages/optee.img",
+        "uart":"acore",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:6625 -a 2",
+        "usb_detect_timeout":5
+    },
+    {
+        "file": "img_packages/uboot.img",
+        "uart":"acore",
+        "method": "xmodem",
+        "dfu_arg":"--device ,3652:6625 -a 3 -R",
+        "usb_detect_timeout":5
+    }
+]

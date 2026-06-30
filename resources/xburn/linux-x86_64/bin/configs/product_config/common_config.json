@@ -1,0 +1,61 @@
+{
+    "compress_image": true,
+    "check_version_latest": true,
+    "support_images_name": ["*disk.img", "*disk.simg"],
+    "support_baudrate": ["4800", "9600", "38400", "115200", "921600"],
+    "xmodem_support_files": "update files(*.img)",
+    "ymodem_support_files": "update files(*.img)",
+    "dfu_support_files": "update files(*.img *.json)",
+    "fastboot_support_files": "update files(*.img *.json)",
+    "ota_support_files": "update files(*.zip)",
+    "mcu_support_files": "update files(*.zip)",
+
+    "separate": "0x08000000",
+
+    "ota_mode":["sftp"],
+    "boot_choose": ["misc"],
+
+    "username": "root",
+    "password": "",
+    "uboot_prompt": "Hobot>",
+    "login_prompt": "login:",
+    "shell_prompt": "root@",
+    "recovery_prompt": "/userdata/cache",
+    "boot_timeout": 120,
+    "ota_update_timeout": 180,
+    "ota_app_update_timeout": 120,
+    "adb_detect_timeout":10,
+    "fastboot_detect_timeout":30,
+    "fastboot_timeout":4000,
+
+    "ddr_size": "0x190000000",
+    "load_address": "0x90000000",
+    "ota_result": "/userdata/log/ota/result",
+    "backup_timeout": 1500,
+    "unzip_address": "0xa0000000",
+    "download_root": "/userdata",
+
+    "boot_file":"",
+    "boot_config":"",
+
+    "serial_prompt_info": "[IMPORTANT] Please power on or reboot the Board!",
+
+    "products":[
+        {
+            "name": "X5",
+            "product_config": "./x5"
+        },
+        {
+            "name": "RDKX5",
+            "product_config": "./rdkx5"
+        },
+        {
+            "name": "RDKS100",
+            "product_config": "./rdks100"
+        },
+        {
+            "name": "RDKS600",
+            "product_config": "./rdks600"
+        }
+    ]
+}
