@@ -297,7 +297,7 @@ def test_robot_sdk_commands_use_robot_remote_endpoint_for_zg():
     assert "occupied|busy|占用" in stream
     assert "mktemp /tmp/dog_remote_robot_remote_stream" in stream
     assert "_dog_remote_needs_restore_roamerx=0" in stream
-    assert stream.index("正在切换导航控制权") < stream.index("_dog_remote_run_stream 2>&1")
+    assert stream.index("_dog_remote_run_stream 2>&1") < stream.index("清理上次未释放的 robot_remote 控制状态")
     assert "dog_remote_robot_roamerx_stopped_by_tool" in stream
     assert "robot-launch start robot_roamerx" in stream
     assert "/control_right/test" not in stream
@@ -367,6 +367,12 @@ def test_l2_realtime_stream_keeps_fast_first_attempt():
     stream = control.body_realtime_stream_command(get_product("xg2_s100"), axis_limit=100, interval_ms=20)
 
     assert stream.index("_dog_remote_run_stream 2>&1") < stream.index("正在切换导航控制权")
+
+
+def test_zg_realtime_stream_also_keeps_fast_first_attempt():
+    stream = control.body_realtime_stream_command(get_product("zg_lidar_nx"), axis_limit=100, interval_ms=20)
+
+    assert stream.index("_dog_remote_run_stream 2>&1") < stream.index("清理上次未释放的 robot_remote 控制状态")
 
 
 def test_l2_posture_action_uses_robot_remote_with_arc_guard():
