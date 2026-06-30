@@ -2108,6 +2108,23 @@ def test_zg_lidar_nx_uses_zgnx_ota_target_when_nx_ota_package_selected(tmp_path)
     assert target.host == "192.168.168.100"
 
 
+def test_zg_lidar_nx_deb_package_routes_to_small_deploy_target(tmp_path):
+    package = tmp_path / "robots_dog_msgs_0.9.0_aarch64_humble_Linux.deb"
+    _write_test_deb(package, package="robots_dog_msgs", version="0.9.0", architecture="arm64")
+    page = OtaPage.__new__(OtaPage)
+    page.package = _FakeText(str(package))
+    page.profile = lambda: get_product("zg_lidar_nx")
+
+    target = OtaPage.current_ota_target(page)
+
+    assert target is not None
+    assert target.key == "zgnx"
+    assert target.family == "small_deploy"
+    assert not target.is_flash
+    assert target.host == "192.168.168.100"
+    assert OtaPage._upgrade_button_text(page, target) == "安装小包"
+
+
 def test_zg_lidar_nx_nx_ota_package_routes_upgrade_to_zgnx_backend_without_mcu(tmp_path, monkeypatch):
     package = tmp_path / "nx_ota_hermes_m_v0.1.3_full.zip"
     _write_zgnx_zip_package(package, tmp_path)

@@ -32,6 +32,10 @@ FLASH_PROFILE_TARGETS = {
 PACKAGE_PROFILE_TARGET_KEYS = {
     ("zg_lidar_nx", "nx"): "zgnx",
 }
+SMALL_PACKAGE_TYPES = {"deb_deploy", "deb_package", "whl_package", "small_deploy_archive"}
+SMALL_PACKAGE_PROFILE_TARGET_KEYS = {
+    "zg_lidar_nx": "zgnx",
+}
 
 
 @dataclass(frozen=True)
@@ -64,12 +68,12 @@ def ui_targets() -> list[OtaUiTarget]:
     ]
 
 
-def _ota_target_from_profile(profile, target_key: str) -> OtaUiTarget:
+def _ota_target_from_profile(profile, target_key: str, *, family: str | None = None) -> OtaUiTarget:
     item = TARGETS[target_key]
     return OtaUiTarget(
         item.key,
         profile.label,
-        item.family,
+        family or item.family,
         profile.host,
         profile.user,
         profile.password,
@@ -100,6 +104,10 @@ def target_for_profile(profile) -> OtaUiTarget | None:
 
 
 def target_for_profile_package(profile, package_type: str) -> OtaUiTarget | None:
+    if package_type in SMALL_PACKAGE_TYPES:
+        target_key = SMALL_PACKAGE_PROFILE_TARGET_KEYS.get(profile.key)
+        if target_key:
+            return _ota_target_from_profile(profile, target_key, family="small_deploy")
     target_key = PACKAGE_PROFILE_TARGET_KEYS.get((profile.key, package_type))
     if target_key:
         return _ota_target_from_profile(profile, target_key)

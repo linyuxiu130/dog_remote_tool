@@ -102,6 +102,7 @@ class OtaPage(OtaLayoutMixin, OtaActionsMixin, CommandPage, OtaDeviceInfoMixin):
                 "s100_flash": "S100 线刷",
                 "orin_flash": "Orin NX 线刷",
                 "line_flash": "线刷",
+                "small_deploy": "远端小包安装",
             }.get(target.family, target.family)
             self.target_status.setText(f"{target.label} · {family_text}")
             if is_flash:
@@ -109,6 +110,10 @@ class OtaPage(OtaLayoutMixin, OtaActionsMixin, CommandPage, OtaDeviceInfoMixin):
                 self.target_status.setToolTip("线刷目标跟随顶部当前设备；S100 可通过 3652:6610 DFU 或 fastboot 执行。")
                 self.target_meta.setToolTip("请把设备接到本机；S100 预检会提示 SSH 自动进入、3652:6610 DFU 和 fastboot 状态。")
                 self._set_device_info_message("线刷目标不读取远端设备信息；请使用预检检查本机 fastboot 和包类型。")
+            elif target.family == "small_deploy":
+                self.target_meta.setText("远端小包安装 · 不走系统 OTA/线刷")
+                self.target_status.setToolTip("小包目标跟随顶部当前设备和登录信息。")
+                self.target_meta.setToolTip("deb 使用远端 dpkg 安装；whl 使用远端 pip 安装。")
             else:
                 self.target_meta.setText("远端升级目录已就绪")
                 self.target_status.setToolTip("OTA 目标跟随顶部当前设备和登录信息。")
@@ -139,6 +144,8 @@ class OtaPage(OtaLayoutMixin, OtaActionsMixin, CommandPage, OtaDeviceInfoMixin):
             return "升级/线刷"
         if target.is_flash:
             return "执行线刷"
+        if target.family == "small_deploy":
+            return "安装小包"
         if target.family == "nx":
             return "升级 NX"
         if target.family == "rk3588":
@@ -244,6 +251,7 @@ class OtaPage(OtaLayoutMixin, OtaActionsMixin, CommandPage, OtaDeviceInfoMixin):
             "s100_flash": "S100 线刷",
             "orin_flash": "Orin NX 线刷",
             "line_flash": "线刷",
+            "small_deploy": "远端小包安装",
         }.get(target.family, target.family) if target else "--"
         endpoint = "本机 USB DFU/fastboot" if target and target.is_flash else "目标设备"
         target_text = "目标：" + (target.label if target else "当前设备不支持 OTA/线刷")
