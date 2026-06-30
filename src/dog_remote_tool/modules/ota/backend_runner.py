@@ -24,13 +24,21 @@ def die(message: str, code: int = 1) -> None:
 
 
 RSYNC_PROGRESS_PATTERN = re.compile(r"^\s*[0-9,]+\s+([0-9]{1,3})%\s+(\S+/s)?")
+RSYNC_PACKAGE_LINE_PATTERN = re.compile(r"^[^/\s].*\.(?:deb|whl|zip|tar\.gz|tgz|tar\.xz|txz)\s*$", re.IGNORECASE)
 
 
 def _format_rsync_progress_line(line: str) -> str:
-    match = RSYNC_PROGRESS_PATTERN.search(line.strip())
+    stripped = line.strip()
+    if stripped in {"sending incremental file list", "receiving file list", "receiving incremental file list"}:
+        return ""
+    if RSYNC_PACKAGE_LINE_PATTERN.match(stripped):
+        return ""
+    match = RSYNC_PROGRESS_PATTERN.search(stripped)
     if not match:
         return line
     percent, speed = match.groups()
+    if percent == "0" and (not speed or speed.startswith("0.00")):
+        return ""
     suffix = f" {speed}" if speed else ""
     return f"[INFO] [upload] 上传进度: {percent}%{suffix}\n"
 
@@ -49,9 +57,18 @@ def run_stream(args: list[str], *, input_text: str | None = None) -> None:
         proc.stdin.close()
     assert proc.stdout is not None
     is_rsync = "rsync" in args
+    last_rsync_percent = ""
     for line in proc.stdout:
         if is_rsync:
+            match = RSYNC_PROGRESS_PATTERN.search(line.strip())
             line = _format_rsync_progress_line(line)
+            if not line:
+                continue
+            if match:
+                percent = match.group(1)
+                if percent == last_rsync_percent:
+                    continue
+                last_rsync_percent = percent
         print(line, end="", flush=True)
     code = proc.wait()
     if code != 0:

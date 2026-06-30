@@ -258,6 +258,57 @@ def test_ota_rsync_progress_is_rewritten_for_user_log():
     assert ota_backend_runner._format_rsync_progress_line(line) == "[INFO] [upload] 上传进度: 42% 8.50MB/s\n"
 
 
+def test_ota_rsync_progress_suppresses_file_list_noise():
+    assert ota_backend_runner._format_rsync_progress_line("sending incremental file list\n") == ""
+    assert ota_backend_runner._format_rsync_progress_line("robots_dog_msgs_0.9.0_aarch64_humble_Linux.deb\n") == ""
+    assert ota_backend_runner._format_rsync_progress_line("              0   0%    0.00kB/s    0:00:00\r") == ""
+
+
+def test_ota_rsync_stream_dedupes_same_percent(capsys, monkeypatch):
+    class FakeProcess:
+        stdin = None
+        stdout = iter(
+            [
+                "sending incremental file list\n",
+                "robots_dog_msgs_0.9.0_aarch64_humble_Linux.deb\n",
+                "      4,509,696 100%   34.71MB/s    0:00:00\r",
+                "      4,509,696 100%   22.71MB/s    0:00:00\r",
+            ]
+        )
+
+        def wait(self):
+            return 0
+
+    monkeypatch.setattr(ota_backend_runner.subprocess, "Popen", lambda *_args, **_kwargs: FakeProcess())
+
+    ota_backend_runner.run_stream(["rsync", "src", "dst"])
+
+    output = capsys.readouterr().out
+    assert output.count("上传进度: 100%") == 1
+    assert "sending incremental file list" not in output
+    assert "robots_dog_msgs_0.9.0_aarch64_humble_Linux.deb" not in output
+
+
+def test_upload_small_package_does_not_repeat_local_package_summary(tmp_path, monkeypatch):
+    package = tmp_path / "robots_dog_msgs_0.9.0_aarch64_humble_Linux.deb"
+    _write_test_deb(package, package="robots_dog_msgs", version="0.9.0")
+    target = ota_backend.TARGETS["zgnx"]
+    messages = []
+
+    monkeypatch.setattr(ota_backend, "log", messages.append)
+    monkeypatch.setattr(ota_backend, "create_remote_dir", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(ota_backend, "remote_supports_rsync", lambda _target: False)
+    monkeypatch.setattr(
+        ota_backend,
+        "upload_file",
+        lambda _target, src, remote_dir, *, remote_has_rsync=None: f"{remote_dir}/{src.name}",
+    )
+
+    ota_backend.upload_small_package(target, package, "/home/robot/ota")
+
+    assert not any(message.startswith("[local] 小包路径:") for message in messages)
+
+
 def test_ota_human_bytes_keeps_binary_units_and_precision():
     assert ota_package_utils.human_bytes(512) == "512 B"
     assert ota_package_utils.human_bytes(1536) == "1.50 KiB"

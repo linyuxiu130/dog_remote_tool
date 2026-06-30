@@ -89,6 +89,20 @@ def test_upgrade_stage_marker_locks_stop_and_emits_status_change():
     assert changes
 
 
+def test_small_deploy_lock_message_names_small_package_stage():
+    _app()
+    runner = ProcessRunner()
+    messages = []
+    runner.output.connect(messages.append)
+    task = RunningTask(QProcess(), "执行小包部署")
+    runner.tasks = {1: task}
+
+    runner._update_stop_lock(task, "[DOG_REMOTE_STAGE] upgrade_locked\n")
+
+    assert any("小包安装阶段" in message for message in messages)
+    assert not any("OTA 刷机阶段" in message for message in messages)
+
+
 def test_refresh_stop_locked_keeps_existing_locked_task_state():
     _app()
     runner = ProcessRunner()

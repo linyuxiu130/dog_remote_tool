@@ -146,11 +146,14 @@ class ProcessRunner(QObject):
             return
         stopped = 0
         locked = 0
+        locked_message = "OTA 已进入刷机阶段，本地停止按钮已锁定；请等待远端升级完成。"
         for task in list(self.tasks.values()):
             if task.process.state() == QProcess.NotRunning:
                 continue
             if task.stop_locked:
                 locked += 1
+                if "小包" in task.title:
+                    locked_message = "小包安装已进入关键阶段，本地停止按钮已锁定；请等待远端安装完成。"
                 continue
             task.stopped_by_user = True
             stopped += 1
@@ -159,7 +162,7 @@ class ProcessRunner(QObject):
         if stopped:
             self._emit_log(log_line("info", f"正在停止 {stopped} 个任务..."))
         if locked:
-            self._emit_log(log_line("warn", "OTA 已进入刷机阶段，本地停止按钮已锁定；请等待远端升级完成。"))
+            self._emit_log(log_line("warn", locked_message))
         if stopped or locked:
             self.task_status_changed.emit()
         for task in list(self.tasks.values()):
@@ -255,7 +258,11 @@ class ProcessRunner(QObject):
         if any(needle in text for needle in lock_needles):
             task.stop_locked = True
             self._refresh_stop_locked()
-            self._emit_log(log_line("warn", "已进入 OTA 刷机阶段，停止按钮锁定。"))
+            if "小包" in task.title:
+                message = "已进入小包安装阶段，停止按钮锁定。"
+            else:
+                message = "已进入 OTA 刷机阶段，停止按钮锁定。"
+            self._emit_log(log_line("warn", message))
             self.task_status_changed.emit()
 
     def _refresh_stop_locked(self) -> None:

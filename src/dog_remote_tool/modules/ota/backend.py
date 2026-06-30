@@ -305,7 +305,6 @@ def remote_small_precheck(target: OtaTarget, remote_dir: str, package: Path) -> 
 
 
 def upload_small_package(target: OtaTarget, package: Path, remote_dir: str) -> str:
-    log_small_package_inputs(package)
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     stem = package.name if package.is_dir() else package.stem
     remote_stage = f"{remote_dir}/{stem}_small_{stamp}"
@@ -316,7 +315,10 @@ def upload_small_package(target: OtaTarget, package: Path, remote_dir: str) -> s
         env = f"REMOTE_ARCHIVE={quote(remote_archive)} REMOTE_STAGE={quote(remote_stage)} "
         run_stream(ssh_args(target, env + "bash -lc " + quote(small_archive_extract_script())))
     else:
-        for item in deb_deploy.small_package_files(package):
+        items = deb_deploy.small_package_files(package)
+        if not items:
+            die("小包路径未找到 .deb 或 .whl")
+        for item in items:
             upload_file(target, item, remote_stage, remote_has_rsync=remote_has_rsync)
     return remote_stage
 
@@ -406,7 +408,7 @@ def command_small_deploy(args: argparse.Namespace) -> None:
     ensure_tools()
     package = resolve_small_package(args.package)
     remote_dir = resolve_remote_dir(target, args.remote_dir)
-    log(f"[small-deploy] 目标: {target.label} -> {target.remote}")
+    log(f"[small-deploy] 目标: {target.label}")
     log(f"[small-deploy] 远程目录: {remote_dir}")
     remote_small_precheck(target, remote_dir, package)
     remote_stage = upload_small_package(target, package, remote_dir)
