@@ -3,8 +3,6 @@ from __future__ import annotations
 from dog_remote_tool.core.profiles import ProductProfile
 from dog_remote_tool.core.shell import CommandSpec, echo_message, quote, remote_env, ssh_command
 from dog_remote_tool.modules.arc_app_ws import common_arc_app_ws_python
-from dog_remote_tool.modules.body_navigation_bridge import ensure_body_navigation_bridge_command
-from dog_remote_tool.modules.control.shared import robot_sdk_control_profile
 from dog_remote_tool.modules.navigation.helper_scripts import (
     MODE_SWITCH_STATE_PID,
     START_NAV_HELPER_FIFO,
@@ -115,11 +113,6 @@ def _publish_start_navigation_payload_b64_inner(
 
 
 def ensure_navigation_helpers_command(profile: ProductProfile) -> CommandSpec:
-    body_bridge_warmup = (
-        ensure_body_navigation_bridge_command(profile, require_control_switch=True)
-        if robot_sdk_control_profile(profile) is not None
-        else ""
-    )
     inner = (
         f"{remote_env(profile)}; "
         "source /opt/robot/robot_nav/install/setup.bash >/dev/null 2>&1 || true; "
@@ -127,8 +120,6 @@ def ensure_navigation_helpers_command(profile: ProductProfile) -> CommandSpec:
         f"{_ensure_start_navigation_helper_inner()}"
     )
     command = ssh_command(profile, inner)
-    if body_bridge_warmup:
-        command = f"( {body_bridge_warmup} ); ( {command} )"
     return CommandSpec(
         "准备导航通道",
         command,

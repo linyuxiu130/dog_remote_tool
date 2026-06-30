@@ -116,6 +116,17 @@ def test_file_manager_view_item_helpers_share_model_lookup_logic():
     assert missing not in items
 
 
+def test_file_manager_delete_whitelist_uses_ota_map_path_not_old_robot_path():
+    assert file_manager.validate_delete_path("/ota/alg_data/map/history_map/a") == "/ota/alg_data/map/history_map/a"
+
+    try:
+        file_manager.validate_delete_path("/opt/data/.robot/map/history_map/a")
+    except ValueError as exc:
+        assert "未授权路径" in str(exc)
+    else:
+        raise AssertionError("old .robot map path should not be delete-whitelisted")
+
+
 def test_file_manager_icon_helper_reuses_kind_cache(monkeypatch):
     class FakeStyle:
         def __init__(self):

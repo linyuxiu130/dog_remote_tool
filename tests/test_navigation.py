@@ -1624,7 +1624,7 @@ def test_start_goal_command_uses_app_start_nav():
 def test_app_start_nav_treats_canceled_as_failure_not_success():
     spec = navigation.start_goal_command(
         get_product("zg_lidar_nx"),
-        "/opt/data/.robot/map/map.pcd",
+        "/ota/alg_data/map/map.pcd",
         1.0,
         2.0,
         0.5,
@@ -1740,22 +1740,34 @@ def test_ensure_navigation_helpers_command_starts_persistent_publishers():
     assert navigation.ensure_mode_switch_helper_command is navigation.ensure_navigation_helpers_command
 
 
-def test_zg_ensure_navigation_helpers_prewarms_body_bridge_and_control():
+def test_zg_ensure_navigation_helpers_does_not_claim_body_control_before_click():
     spec = navigation.ensure_navigation_helpers_command(get_product("zg_lidar_nx"))
+
+    assert "dog_remote_start_navigation_helper.py" in spec.command
+    assert "robot-launch start robot_roamerx" not in spec.command
+    assert "enable_forward_cmd_vel" not in spec.command
+    assert "[d]og_remote_app_ws_broker" not in spec.command
+    assert "/robot_control_server/current_requester_info" not in spec.command
+    assert "ControlServerSwitchControl" not in spec.command
+    assert "/robot_roamerx/is_in_nav_control" not in spec.command
+
+
+def test_zg_start_goal_claims_body_control_on_click():
+    spec = navigation.start_goal_command(
+        get_product("zg_lidar_nx"),
+        "/opt/data/.robot/map/map.pcd",
+        1.0,
+        2.0,
+        0.5,
+        0.4,
+        0.25,
+    )
 
     assert "robot@192.168.234.1" in spec.command
     assert "robot-launch start robot_roamerx" in spec.command
     assert "enable_forward_cmd_vel" in spec.command
-    assert "/opt/robot/install/robot_roamerx/share/robot_roamerx/config/zsm/robot_roamerx.yaml" in spec.command
-    assert "robot-launch restart robot_roamerx" in spec.command
-    assert "[d]og_remote_app_ws_broker" not in spec.command
-    assert "/robot_control_server/current_requester_info" in spec.command
-    assert "from robot_common_interface.action import ControlServerSwitchControl" in spec.command
-    assert "ros2 action send_goal /robot_control_server/switch_control" not in spec.command
-    assert "dog_remote_robot_roamerx_control" in spec.command
-    assert spec.command.index("robot-launch start robot_roamerx") < spec.command.index(
-        "dog_remote_start_navigation_helper.py"
-    )
+    assert "ControlServerSwitchControl" in spec.command
+    assert 'request(1, "change_control_right_to", {"owner": "alg"}, wait=3)' in spec.command
 
 
 def test_auto_body_release_keeps_robot_roamerx_warm():

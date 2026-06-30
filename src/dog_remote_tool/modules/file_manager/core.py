@@ -42,7 +42,6 @@ PROTECTED_DELETE_PATHS = {
 }
 DELETE_ALLOWED_PREFIXES = (
     "/tmp/",
-    "/opt/data/.robot/",
     "/ota/alg_data/",
 )
 
