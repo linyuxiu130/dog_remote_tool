@@ -47,7 +47,7 @@ from dog_remote_tool.modules.ota import remote_shell as ota_remote_shell
 from dog_remote_tool.ui.pages.ota import actions as ota_actions
 from dog_remote_tool.ui.pages.ota import device_info as ota_device_info
 from dog_remote_tool.ui.pages.ota import layout as ota_layout
-from dog_remote_tool.ui.pages.ota.page import OtaPage, parse_flash_progress
+from dog_remote_tool.ui.pages.ota.page import PACKAGE_DIALOG_FILTER, OtaPage, parse_flash_progress
 from helpers import FakeSignal as _FakeSignal, FakeRunner as _FakeRunner
 
 
@@ -497,6 +497,11 @@ def test_ota_choose_package_returns_selection_result():
     assert page.info_updates == 1
 
 
+def test_ota_package_dialog_filter_includes_small_packages():
+    assert "*.deb" in PACKAGE_DIALOG_FILTER
+    assert "*.whl" in PACKAGE_DIALOG_FILTER
+
+
 def test_large_3588_archive_selection_does_not_parse_mcu_versions(tmp_path, monkeypatch):
     package = tmp_path / "606003065CCA.tar.gz"
     with package.open("wb") as stream:
@@ -766,6 +771,21 @@ def test_deb_file_is_identified_as_debian_package_not_nx_ota(tmp_path):
     assert ota.package_type(str(package)) == "deb_package"
     assert ("Package", "robot-runtime-nx") in ota.package_detail_rows(str(package))
     assert "Debian 小包：robot-runtime-nx 0.2.7" in ota.package_light_summary(str(package))
+
+
+def test_deb_summary_does_not_read_entire_package(tmp_path, monkeypatch):
+    package = tmp_path / "navigation_0.7.2_arm64.deb"
+    _write_test_deb(package, package="navigation", version="0.7.2", architecture="arm64")
+
+    def fail_read_bytes(self):
+        if self == package:
+            raise AssertionError("deb summary must stream control metadata instead of reading the whole package")
+        return original_read_bytes(self)
+
+    original_read_bytes = Path.read_bytes
+    monkeypatch.setattr(Path, "read_bytes", fail_read_bytes)
+
+    assert "Debian 小包：navigation 0.7.2" in ota.package_light_summary(str(package))
 
 
 def test_whl_file_is_identified_as_python_package(tmp_path):

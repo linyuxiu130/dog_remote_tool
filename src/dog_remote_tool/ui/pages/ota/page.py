@@ -22,6 +22,7 @@ SPARSE_PROGRESS_PATTERN = re.compile(r"Sending sparse '[^']+'\s+(\d+)/(\d+)")
 
 # Tests and action mixins patch this symbol through dog_remote_tool.ui.pages.ota.page.
 _OTA_PAGE_MONKEYPATCH_EXPORTS = (QTimer,)
+PACKAGE_DIALOG_FILTER = "升级包/线刷包/小包 (*.tar.gz *.zip *.deb *.whl);;All (*)"
 
 
 def parse_flash_progress(text: str) -> float | None:
@@ -184,7 +185,7 @@ class OtaPage(OtaLayoutMixin, OtaActionsMixin, CommandPage, OtaDeviceInfoMixin):
             self,
             "选择升级包/线刷包",
             start_dir,
-            "升级包/线刷包 (*.tar.gz *.zip);;All (*)",
+            PACKAGE_DIALOG_FILTER,
         )
         dialog.setOption(QFileDialog.DontUseNativeDialog, True)
         dialog.setFileMode(QFileDialog.ExistingFile)

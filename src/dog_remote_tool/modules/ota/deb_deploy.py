@@ -229,22 +229,17 @@ def deb_light_summary(path: Path) -> str:
 
 
 def _read_control_with_stdlib(path: Path) -> str:
-    try:
-        members = _ar_members(path)
-    except OSError:
+    payload = _read_ar_member(path, lambda name: name.startswith("control.tar"))
+    if not payload:
         return ""
-    for name, payload in members:
-        clean_name = name.rstrip("/").split("/", 1)[0]
-        if not clean_name.startswith("control.tar"):
-            continue
-        try:
-            with tarfile.open(fileobj=io.BytesIO(payload), mode="r:*") as tf:
-                for member in tf:
-                    if member.name.lstrip("./") == "control":
-                        stream = tf.extractfile(member)
-                        return stream.read().decode("utf-8", errors="ignore") if stream else ""
-        except (tarfile.TarError, OSError, EOFError):
-            return ""
+    try:
+        with tarfile.open(fileobj=io.BytesIO(payload), mode="r:*") as tf:
+            for member in tf:
+                if member.name.lstrip("./") == "control":
+                    stream = tf.extractfile(member)
+                    return stream.read().decode("utf-8", errors="ignore") if stream else ""
+    except (tarfile.TarError, OSError, EOFError):
+        return ""
     return ""
 
 
@@ -322,23 +317,26 @@ def _human_bytes(size: int) -> str:
         value /= 1024
 
 
-def _ar_members(path: Path) -> list[tuple[str, bytes]]:
-    data = path.read_bytes()
-    if not data.startswith(b"!<arch>\n"):
-        return []
-    members: list[tuple[str, bytes]] = []
-    offset = 8
-    while offset + 60 <= len(data):
-        header = data[offset : offset + 60]
-        offset += 60
-        try:
-            name = header[:16].decode("utf-8", errors="ignore").strip()
-            size = int(header[48:58].decode("ascii", errors="ignore").strip())
-        except ValueError:
-            break
-        payload = data[offset : offset + size]
-        members.append((name, payload))
-        offset += size
-        if offset % 2:
-            offset += 1
-    return members
+def _read_ar_member(path: Path, predicate) -> bytes:
+    try:
+        stream = path.open("rb")
+    except OSError:
+        return b""
+    with stream:
+        if stream.read(8) != b"!<arch>\n":
+            return b""
+        while True:
+            header = stream.read(60)
+            if not header:
+                return b""
+            if len(header) < 60:
+                return b""
+            try:
+                name = header[:16].decode("utf-8", errors="ignore").strip()
+                size = int(header[48:58].decode("ascii", errors="ignore").strip())
+            except ValueError:
+                return b""
+            clean_name = name.rstrip("/").split("/", 1)[0]
+            if predicate(clean_name):
+                return stream.read(size)
+            stream.seek(size + (size % 2), 1)
